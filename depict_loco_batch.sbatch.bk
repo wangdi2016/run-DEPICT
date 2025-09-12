@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+#SBATCH --job-name=depict_loco
+#SBATCH --partition=norm
+#SBATCH --time=4:00:00
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=20g
+#SBATCH --array=1-594   # 27 GWAS × 22 chromosomes = 594
+#SBATCH --output=/data/wangdi/CGRProjects/sonja/DEPICT/run30gwas/logs/%x.%A.%a.out
+#SBATCH --error=/data/wangdi/CGRProjects/sonja/DEPICT/run30gwas/logs/%x.%A.%a.err
+
+#module purge
+#module load python/2.7
+#module load depict
+source ~/init.conda.sh
+conda activate py2
+#python2
+
+DEPICT_PY="/data/wangdi/CGRProjects/sonja/DEPICT/src/python/depict.py"
+CFG_DIR="/data/wangdi/CGRProjects/sonja/DEPICT/run30gwas/configs_loco"
+mapfile -t CFGS < "$CFG_DIR/configs.list"
+
+cfg="${CFGS[$SLURM_ARRAY_TASK_ID-1]}"
+
+echo "[$(date)] Starting $cfg"
+python2 "$DEPICT_PY" "$cfg"
+echo "[$(date)] Finished $cfg"
+
